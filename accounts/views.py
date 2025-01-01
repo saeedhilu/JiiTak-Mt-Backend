@@ -57,6 +57,7 @@ class PasswordResetRequestView(GenericAPIView):
         if serializer.is_valid():
             email = serializer.validated_data["email"]
             print("email is :", email)
+            print(settings.REDIS_URL)
             try:
                 user = CustomUser.objects.get(email=email)
                 token = default_token_generator.make_token(user)
