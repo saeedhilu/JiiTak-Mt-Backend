@@ -18,8 +18,8 @@ class LoginSerializer(serializers.ModelSerializer):
         fields = ("email", "password")
 
     def validate(self, attrs):
+        print('attr is :',attrs)
         user = CustomUser.objects.filter(email=attrs["email"]).first()
-        print(user.password)
         if not user:
             raise serializers.ValidationError({"email": "Invalid Email."})
         if not user.check_password(attrs["password"]):

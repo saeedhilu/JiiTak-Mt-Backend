@@ -17,6 +17,7 @@ from django.template.loader import render_to_string
 from .pagination import UserPagination
 from rest_framework.filters import SearchFilter
 from accounts.models import CustomUser
+from django.db.models import Q
 
 
 class LoginView(APIView):
@@ -49,6 +50,10 @@ class LoginView(APIView):
 
 
 class PasswordResetRequestView(GenericAPIView):
+    """
+    Sends a password reset email to the provided email.
+    """
+
     serializer_class = PasswordResetRequestSerializer
 
     def post(self, request, *args, **kwargs):
@@ -62,7 +67,7 @@ class PasswordResetRequestView(GenericAPIView):
                 user = CustomUser.objects.get(email=email)
                 token = default_token_generator.make_token(user)
                 uid = urlsafe_base64_encode(force_bytes(user.pk))
-
+                print('uid storinng',uid)
                 cache_key = f"password_reset_token_{uid}"
 
                 token_in_cache = cache.get(cache_key)
@@ -119,6 +124,10 @@ class PasswordResetRequestView(GenericAPIView):
 
 
 class PasswordResetConfirmView(GenericAPIView):
+    """
+    Verifies user's email and resets their password.
+    """
+
     serializer_class = PasswordResetConfirmSerializer
 
     def post(self, request, uidb64, *args, **kwargs):
@@ -146,7 +155,7 @@ class PasswordResetConfirmView(GenericAPIView):
             user.set_password(serializer.validated_data["password"])
 
             user.save()
-
+            cache.delete(f"password_reset_token_{uidb64}")
             return Response(
                 {"message": "Password reset successful."}, status=status.HTTP_200_OK
             )
@@ -160,6 +169,10 @@ class PasswordResetConfirmView(GenericAPIView):
 
 
 class UserListView(ListAPIView):
+    """
+    Returns a list of users.
+    """
+
     serializer_class = UserSerializer
     pagination_class = UserPagination
     filter_backends = [SearchFilter]
@@ -170,18 +183,16 @@ class UserListView(ListAPIView):
         page = self.request.GET.get("page", 1)
         cache_key = f"user_list_{search_query}_{page}"
 
-        # Check for cached data
         cached_queryset = cache.get(cache_key)
         if cached_queryset:
+            print('cache aan ')
             return cached_queryset
 
-        # If no cache, fetch data from the database
         queryset = CustomUser.objects.filter(
-            username__icontains=search_query
+            Q(username__icontains=search_query) | Q(email__icontains=search_query)
         ).order_by("id")
 
-        # Cache the queryset
-        cache.set(cache_key, queryset, timeout=60 * 5)  # Cache for 5 minutes
+        cache.set(cache_key, queryset, timeout=60 * 5)
 
         return queryset
 
@@ -190,16 +201,13 @@ class UserListView(ListAPIView):
         page = self.request.GET.get("page", 1)
         cache_key = f"user_list_{search_query}_{page}"
 
-        # Check for cached data
         cached_response = cache.get(cache_key)
         if cached_response:
             print('cached 23')
             return Response(cached_response)
 
-        # Fetch data from the database
         response = super().list(request, *args, **kwargs)
 
-        # Cache the response
-        cache.set(cache_key, response.data, timeout=60 * 5)  # Cache for 5 minutes
+        cache.set(cache_key, response.data, timeout=60 * 5)
 
         return response
