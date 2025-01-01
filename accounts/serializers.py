@@ -35,3 +35,11 @@ class PasswordResetRequestSerializer(serializers.Serializer):
     
 class PasswordResetConfirmSerializer(serializers.Serializer):
     password = serializers.CharField(write_only=True, required=True)
+
+
+
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CustomUser
+        fields = "__all__"

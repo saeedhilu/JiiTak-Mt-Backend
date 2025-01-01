@@ -16,7 +16,11 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         ("admin", "Admin"),
         ("user", "User"),
     )
-    
+    GENDER_CHOICES = (
+        ("male", "Male"),
+        ("female", "Female"),
+        ("other", "Other"),
+    )
     email = models.EmailField(
         unique=True,
         validators=[EmailValidator(message="Enter a valid email address")],
@@ -37,6 +41,23 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         help_text="Password must be at least 8 characters long, contain an uppercase letter, a number, and a special character.",
     )
     dob = models.DateField(default='2000-11-01')
+    gender = models.CharField(
+        max_length=10,
+        choices=GENDER_CHOICES,
+        default="other",
+        help_text="Gender of the user.",
+    )
+    # place_of_residence = models.CharField(
+    #     max_length=255,
+    #     help_text="Place of residence of the user.",
+    #     blank=True,
+    #     null=True,
+    # )
+    # registration_date = models.DateField(
+    #     auto_now_add=True,
+    #     help_text="The date when the user registered.",
+    # )
+
 
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
