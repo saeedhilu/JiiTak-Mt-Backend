@@ -11,8 +11,8 @@
         "src": "/(.*)",
         "dest": "config/wsgi.py"
       }
-    ],
+    ]
 
-    "rewrites": [{ "source": "/(.*)", "destination": "/" }]
+   
     
 }
