@@ -42,6 +42,7 @@ class LoginView(APIView):
                         "username": user.username,
                         "user_id": user.id,
                         "dob": user.dob,
+                        "role":user.role
                     },
                 },
                 status=status.HTTP_200_OK,
