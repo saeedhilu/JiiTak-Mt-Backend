@@ -145,15 +145,15 @@ SIMPLE_JWT = {
 #Redis cache
 
 REDIS_URL = os.environ.get('REDIS_URL')
-
+print('redis_url: %s' % REDIS_URL)
 CACHES = {
     'default': {
         'BACKEND': 'django_redis.cache.RedisCache',
         'LOCATION': REDIS_URL,
         'OPTIONS': {
             'CLIENT_CLASS': 'django_redis.client.DefaultClient',
-            'CONNECTION_POOL_KWARGS': {'max_connections': 10},
-        }
+            'CONNECTION_POOL_KWARGS': {'max_connections': 20},
+        }   
     }
 }
 
